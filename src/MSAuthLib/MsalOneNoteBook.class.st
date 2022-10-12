@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #accessing }
+MsalOneNoteBook >> displayStringOn: aStream [
+	aStream nextPutAll: self name
+]
+
+{ #category : #accessing }
 MsalOneNoteBook >> name [
 	^ self rawData at: 'displayName'
 ]
@@ -30,4 +35,14 @@ MsalOneNoteBook >> sections [
 				MsalOneNoteSection 
 					fromDictionary: dict
 					forApplication: self application ] ]
+]
+
+{ #category : #accessing }
+MsalOneNoteBook >> sectionsViewOn: aView [
+	<gtView>
+	
+	^ aView list
+		title: 'Sections';
+		items: [ self sections asAsyncStream ];
+		actionUpdateButton
 ]

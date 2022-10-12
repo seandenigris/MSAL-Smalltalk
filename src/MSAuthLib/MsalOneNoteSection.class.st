@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #accessing }
+MsalOneNoteSection >> displayStringOn: aStream [
+	aStream nextPutAll: self name
+]
+
+{ #category : #accessing }
 MsalOneNoteSection >> id [
 	^ self rawData at: 'id'
 ]
@@ -25,6 +30,17 @@ MsalOneNoteSection >> pages [
 		do: [ :json | 
 			(json at: 'value')
 				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ] ]
+]
+
+{ #category : #accessing }
+MsalOneNoteSection >> pagesViewOn: aView [
+	<gtView>
+	
+	^ aView list
+		title: 'Pages';
+		priority: 50;
+		items: [ self pages asAsyncStream ];
+		actionUpdateButton
 ]
 
 { #category : #accessing }

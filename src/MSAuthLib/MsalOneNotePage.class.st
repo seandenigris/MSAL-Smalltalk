@@ -5,11 +5,27 @@ Class {
 }
 
 { #category : #accessing }
+MsalOneNotePage >> displayStringOn: aStream [
+	aStream nextPutAll: self title
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> html [
 
 	^ self application
 		get: (self rawData at: 'contentUrl') asUrl
 		do: [ :r | r ]
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> htmlRawViewOn: aView [
+	<gtView>
+	
+	^ aView textEditor
+		title: 'HTML (raw)';
+		priority: 50;
+		text: [ self html ];
+		actionUpdateButton
 ]
 
 { #category : #accessing }

@@ -42,3 +42,14 @@ MsalOneNote >> notebooks [
 					fromDictionary: dict
 					forApplication: self application ] ]
 ]
+
+{ #category : #accessing }
+MsalOneNote >> notebooksViewOn: aView [
+	<gtView>
+	
+	^ aView list
+		title: 'Notebooks';
+		priority: 50;
+		items: [ self notebooks asAsyncStream ];
+		actionUpdateButton
+]
