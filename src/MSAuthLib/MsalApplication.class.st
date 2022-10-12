@@ -13,7 +13,8 @@ Class {
 { #category : #accessing }
 MsalApplication >> accessToken [
 
-	^ accessToken ifNil: [ self logIn ]
+	accessToken ifNil: [ self logIn ].
+	^ accessToken
 ]
 
 { #category : #accessing }
@@ -32,6 +33,39 @@ MsalApplication >> authorityUrl [
 MsalApplication >> authorityUrl: anObject [
 
 	authorityUrl := anObject
+]
+
+{ #category : #accessing }
+MsalApplication >> client [
+
+	| client |
+	client ifNotNil: [ ^ client ].
+	
+	client := ZnClient new.
+	self accessToken configureClient: client.
+	^ client
+]
+
+{ #category : #accessing }
+MsalApplication >> get: aUrl do: aBlock [
+
+	| response |
+	response := self client
+		url: aUrl;
+		get.
+		
+	^ aBlock value: response
+]
+
+{ #category : #accessing }
+MsalApplication >> getJsonAt: aUrl do: aBlock [
+
+	^ self
+		get: aUrl
+		do: [ :response |
+			| json |
+			json := STONJSON fromString: response.
+			aBlock value: json ]
 ]
 
 { #category : #accessing }
@@ -58,6 +92,12 @@ response'
 			#app -> self pythonInstance.
 			#scopes -> self scopes }.
 	accessToken := MsalAccessToken fromDictionary: tokenResponse
+]
+
+{ #category : #accessing }
+MsalApplication >> oneNote [
+	
+	^ MsalOneNote forApplication: self
 ]
 
 { #category : #accessing }
