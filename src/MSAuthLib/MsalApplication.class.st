@@ -91,7 +91,9 @@ response'
 		withBindings: {
 			#app -> self pythonInstance.
 			#scopes -> self scopes }.
-	accessToken := MsalAccessToken fromDictionary: tokenResponse
+	accessToken := MsalAccessToken 
+		fromDictionary: tokenResponse
+		forApplication: self
 ]
 
 { #category : #accessing }
