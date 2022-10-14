@@ -65,6 +65,12 @@ MsalApplication >> getJsonAt: aUrl do: aBlock [
 		do: [ :response |
 			| json |
 			json := STONJSON fromString: response.
+			json 
+				at: 'error'
+				ifPresent: [ :err | 
+					| errMsg |
+					errMsg := err at: 'message'.
+					self error: errMsg ].
 			aBlock value: json ]
 ]
 
