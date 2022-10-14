@@ -53,3 +53,19 @@ MsalOneNote >> notebooksViewOn: aView [
 		items: [ self notebooks asAsyncStream ];
 		actionUpdateButton
 ]
+
+{ #category : #accessing }
+MsalOneNote >> pages [
+
+	| baseUrl endpoint url |
+	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
+	endpoint := baseUrl / 'me'.
+	url := endpoint / 'onenote' / 'pages' ? ('$top' -> 100).
+	^ self application 
+		getJsonAt: url
+		do: [ :json |
+			(json at: 'value') collect: [ :dict |
+				MsalOneNotePage 
+					fromDictionary: dict
+					forApplication: self application ] ]
+]

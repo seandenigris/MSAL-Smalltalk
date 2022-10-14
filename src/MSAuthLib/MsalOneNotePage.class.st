@@ -71,6 +71,22 @@ MsalOneNotePage >> presentOnWeb [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> preview [
+
+	^ self application
+		getJsonAt: (self rawData at: 'self') asUrl / 'preview'
+		do: [ :r | r ]
+		
+	"Reference: https://learn.microsoft.com/en-us/graph/onenote-get-content#page-preview"
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> previewText [
+
+	^ self preview at: 'previewText'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> printOn: aStream [
 	self title ifNotNil: [ :title |
 		aStream nextPutAll: title ].

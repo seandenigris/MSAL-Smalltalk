@@ -24,7 +24,7 @@ MsalOneNoteSection >> pages [
 	| url baseUrl endpoint |
 	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
 	endpoint := baseUrl / 'me'.
-	url := endpoint asUrl / 'onenote' / 'sections' / self id / 'pages'.
+	url := endpoint asUrl / 'onenote' / 'sections' / self id / 'pages' ? ('$top' -> 100).
 	^ self application
 		getJsonAt: url
 		do: [ :json | 
