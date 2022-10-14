@@ -35,6 +35,30 @@ MsalOneNotePage >> links [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> markdown [
+
+	| pySource |
+	pySource := 'import html2text
+h = html2text.HTML2Text()
+h.handle(input)'.
+
+	^ PBApplication uniqueInstance
+		sendSource: pySource 
+		withBindings: { #input -> self html }
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> markdownViewOn: aView [
+	<gtView>
+	
+	^ aView explicit
+		title: 'Markdown';
+		priority: 25;
+		stencil: [ LeCoderTextElement coderElementFor: self markdown ];
+		actionUpdateButton
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> presentInClient [
 
 	^ ((self links at: 'oneNoteClientUrl') at: 'href') asUrl open
