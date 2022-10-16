@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #accessing }
+MsalOneNoteBook class >> url [
+
+	^ MsalOneNote url / 'notebooks'
+]
+
+{ #category : #accessing }
 MsalOneNoteBook >> displayStringOn: aStream [
 	aStream nextPutAll: self name
 ]

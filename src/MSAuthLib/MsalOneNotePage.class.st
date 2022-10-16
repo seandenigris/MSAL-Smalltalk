@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #accessing }
+MsalOneNotePage class >> url [
+
+	^ MsalOneNote url / 'pages'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> displayStringOn: aStream [
 	aStream nextPutAll: self title
 ]
@@ -98,4 +104,10 @@ MsalOneNotePage >> printOn: aStream [
 { #category : #accessing }
 MsalOneNotePage >> title [
 	^ self rawData at: 'title'
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> url [
+
+	^ self class url / self id
 ]

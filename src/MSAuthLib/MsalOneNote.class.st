@@ -16,6 +16,15 @@ MsalOneNote class >> forApplication: anMsalApplication [
 ]
 
 { #category : #accessing }
+MsalOneNote class >> url [
+
+	| baseUrl endpoint |
+	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
+	endpoint := baseUrl / 'me'.
+	^ endpoint asUrl / 'onenote'
+]
+
+{ #category : #accessing }
 MsalOneNote >> application [
 
 	^ application
