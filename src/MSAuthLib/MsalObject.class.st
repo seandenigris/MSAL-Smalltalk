@@ -30,6 +30,14 @@ MsalObject >> application: anObject [
 ]
 
 { #category : #accessing }
+MsalObject >> printOn: aStream [
+	
+	aStream nextPutAll: ' ('.
+	super printOn: aStream.
+	aStream nextPutAll: ')'.
+]
+
+{ #category : #accessing }
 MsalObject >> rawData [
 
 	^ rawData
@@ -39,4 +47,15 @@ MsalObject >> rawData [
 MsalObject >> rawData: anObject [
 
 	rawData := anObject
+]
+
+{ #category : #accessing }
+MsalObject >> rawDataViewFor: aView [
+	<gtView>
+	
+	^ aView forward
+		title: 'Raw Data';
+		priority: 51;
+		object: [ self rawData ];
+		view: #gtItemsFor:
 ]
