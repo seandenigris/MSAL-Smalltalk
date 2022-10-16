@@ -39,12 +39,8 @@ MsalOneNote >> application: anObject [
 { #category : #accessing }
 MsalOneNote >> notebooks [
 
-	| baseUrl endpoint url |
-	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
-	endpoint := baseUrl / 'me'.
-	url := endpoint asUrl / 'onenote' / 'notebooks'.
 	^ self application 
-		getJsonAt: url
+		getJsonAt: MsalOneNoteBook url
 		do: [ :json |
 			(json at: 'value') collect: [ :dict |
 				MsalOneNoteBook 
@@ -66,10 +62,8 @@ MsalOneNote >> notebooksViewOn: aView [
 { #category : #accessing }
 MsalOneNote >> pages [
 
-	| baseUrl endpoint url |
-	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
-	endpoint := baseUrl / 'me'.
-	url := endpoint / 'onenote' / 'pages' ? ('$top' -> 100).
+	| url |
+	url := MsalOneNotePage url ? ('$top' -> 100).
 	^ self application 
 		getJsonAt: url
 		do: [ :json |
