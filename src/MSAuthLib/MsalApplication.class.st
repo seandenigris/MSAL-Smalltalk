@@ -83,6 +83,12 @@ MsalApplication >> client [
 ]
 
 { #category : #accessing }
+MsalApplication >> delete: aUrl [
+
+	self client delete: aUrl.
+]
+
+{ #category : #accessing }
 MsalApplication >> get: aUrl [
 
 	^ self 
