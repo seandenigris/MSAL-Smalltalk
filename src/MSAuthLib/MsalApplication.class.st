@@ -31,6 +31,8 @@ MsalApplication >> acquireToken [
 	^ self acquire_token_silent 
 		ifNotNil: [ :token | token ]
 		ifNil: [ self acquire_token_interactive ]
+		
+	"Adapted from https://github.com/AzureAD/microsoft-authentication-library-for-python/blob/dev/sample/interactive_sample.py#L47"
 ]
 
 { #category : #accessing }
@@ -43,6 +45,8 @@ response'
 		withBindings: {
 			#app -> self pythonInstance.
 			#scopes -> self scopes}.
+			
+	"Reference: https://msal-python.readthedocs.io/en/latest/index.html#msal.PublicClientApplication.acquire_token_interactive"
 ]
 
 { #category : #accessing }
@@ -57,6 +61,8 @@ response'
 		withBindings: {
 			#app -> self pythonInstance.
 			#scopes -> self scopes }.
+			
+	"Reference: https://msal-python.readthedocs.io/en/latest/index.html#msal.PublicClientApplication.acquire_token_silent"
 ]
 
 { #category : #accessing }
