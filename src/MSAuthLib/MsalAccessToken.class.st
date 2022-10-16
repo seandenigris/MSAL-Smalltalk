@@ -7,5 +7,5 @@ Class {
 { #category : #accessing }
 MsalAccessToken >> configureClient: aZnClient [
 
-	aZnClient headerAt: 'Authorization' put: 'Bearer ' , (self rawData at: 'access_token')
+	aZnClient setBearerAuthentication: (self rawData at: 'access_token')
 ]

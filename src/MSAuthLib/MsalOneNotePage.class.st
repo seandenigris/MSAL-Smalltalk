@@ -18,9 +18,7 @@ MsalOneNotePage >> displayStringOn: aStream [
 { #category : #accessing }
 MsalOneNotePage >> html [
 
-	^ self application
-		get: (self rawData at: 'contentUrl') asUrl
-		do: [ :r | r ]
+	^ self application get: (self rawData at: 'contentUrl') asUrl
 ]
 
 { #category : #accessing }

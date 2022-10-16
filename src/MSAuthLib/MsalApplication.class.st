@@ -21,7 +21,42 @@ MsalApplication >> accessToken [
 { #category : #accessing }
 MsalApplication >> accessToken: anObject [
 
-	accessToken := anObject
+	accessToken := anObject.
+	accessToken configureClient: self client.
+]
+
+{ #category : #accessing }
+MsalApplication >> acquireToken [
+	
+	^ self acquire_token_silent 
+		ifNotNil: [ :token | token ]
+		ifNil: [ self acquire_token_interactive ]
+]
+
+{ #category : #accessing }
+MsalApplication >> acquire_token_interactive [
+
+	^ self
+		pythonSend: '
+response = app.acquire_token_interactive(scopes=scopes)
+response'
+		withBindings: {
+			#app -> self pythonInstance.
+			#scopes -> self scopes}.
+]
+
+{ #category : #accessing }
+MsalApplication >> acquire_token_silent [
+
+	self get_accounts ifEmpty: [ ^ nil ].
+	
+	^ self
+		pythonSend: '
+response = app.acquire_token_silent(scopes, app.get_accounts()[0])
+response' 
+		withBindings: {
+			#app -> self pythonInstance.
+			#scopes -> self scopes }.
 ]
 
 { #category : #accessing }
@@ -38,24 +73,38 @@ MsalApplication >> authorityUrl: anObject [
 
 { #category : #accessing }
 MsalApplication >> client [
-
-	| client |
 	client ifNotNil: [ ^ client ].
-	
-	client := ZnClient new.
-	self accessToken configureClient: client.
+
+	client := ZnClient new
+		systemPolicy;
+		yourself.
+
 	^ client
 ]
 
 { #category : #accessing }
-MsalApplication >> get: aUrl do: aBlock [
+MsalApplication >> get: aUrl [
 
-	| response |
-	response := self client
-		url: aUrl;
-		get.
-		
-	^ aBlock value: response
+	^ self 
+		get: aUrl 
+		contentReader: [ :response | response contents ]
+]
+
+{ #category : #accessing }
+MsalApplication >> get: aUrl contentReader: aBlock [
+
+	
+	^ [ self client 
+			contentReader: aBlock;
+			get: aUrl
+	]
+		on: ZnHttpUnsuccessful
+		do: [ :err |
+			err response code = 401 
+				ifTrue: [ 
+					self logIn.
+					self client get: aUrl ]
+				ifFalse: [ err pass ] ]
 ]
 
 { #category : #accessing }
@@ -63,9 +112,9 @@ MsalApplication >> getJsonAt: aUrl do: aBlock [
 
 	^ self
 		get: aUrl
-		do: [ :response |
+		contentReader: [ :response |
 			| json |
-			json := STONJSON fromString: response.
+			json := STONJSON fromString: response contents.
 			json 
 				at: 'error'
 				ifPresent: [ :err | 
@@ -105,38 +154,20 @@ MsalApplication >> id: anObject [
 { #category : #accessing }
 MsalApplication >> logIn [
 
-	| tokenResponse |
-	tokenResponse := self
-		pythonSend: '
-response = app.acquire_token_interactive(scopes=scopes)
-response' 
-		withBindings: {
-			#app -> self pythonInstance.
-			#scopes -> self scopes }.
-	accessToken := MsalAccessToken 
-		fromDictionary: tokenResponse
-		forApplication: self
+	self acquireToken
+		ifNil: [ self error: 'log in failed!' ]
+		ifNotNil: [ :aDictionary |
+			| token |
+			token := MsalAccessToken 
+				fromDictionary: aDictionary
+				forApplication: self.
+			self accessToken: token ]
 ]
 
 { #category : #accessing }
 MsalApplication >> oneNote [
 	
 	^ MsalOneNote forApplication: self
-]
-
-{ #category : #accessing }
-MsalApplication >> pages [
-
-	| baseUrl endpoint url client pagesResponse pagesJson |
-	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
-	endpoint := baseUrl / 'me'.
-	url := endpoint asUrl / 'onenote' / 'pages'.
-	client := ZnClient new.
-	self accessToken configureClient: client.
-	pagesResponse := client
-		url: url;
-		get.
-	^ pagesJson := STONJSON fromString: pagesResponse
 ]
 
 { #category : #accessing }
