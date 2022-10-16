@@ -35,6 +35,12 @@ MsalOneNotePage >> htmlRawViewOn: aView [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> id [
+
+	^ self rawData at: 'id'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> links [
 
 	^ self rawData at: 'links'
@@ -71,9 +77,25 @@ MsalOneNotePage >> presentInClient [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> presentInClientDescription [
+	<magritteActionDescription>
+	^ MAActionDescription new
+		action: #presentInClient;
+		yourself
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> presentOnWeb [
 
 	^ ((self links at: 'oneNoteWebUrl') at: 'href') asUrl open
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> presentOnWebDescription [
+	<magritteActionDescription>
+	^ MAActionDescription new
+		action: #presentOnWeb;
+		yourself
 ]
 
 { #category : #accessing }
@@ -96,9 +118,7 @@ MsalOneNotePage >> previewText [
 MsalOneNotePage >> printOn: aStream [
 	self title ifNotNil: [ :title |
 		aStream nextPutAll: title ].
-	aStream nextPutAll: ' ('.
 	super printOn: aStream.
-	aStream nextPutAll: ')'.
 ]
 
 { #category : #accessing }
