@@ -5,7 +5,8 @@ Class {
 		'accessToken',
 		'pythonInstance',
 		'id',
-		'authorityUrl'
+		'authorityUrl',
+		'client'
 	],
 	#category : #MSAuthLib
 }
@@ -72,6 +73,21 @@ MsalApplication >> getJsonAt: aUrl do: aBlock [
 					errMsg := err at: 'message'.
 					self error: errMsg ].
 			aBlock value: json ]
+]
+
+{ #category : #accessing }
+MsalApplication >> get_accounts [
+
+	| response |
+	response := self pythonInstance send: #get_accounts.
+	^ response collect: [ :aDictionary | 
+		MsalAccount 
+			fromDictionary: aDictionary 
+			forApplication: self ]
+			
+	"
+	- Optional username parameter
+	- Reference: https://msal-python.readthedocs.io/en/latest/index.html#msal.PublicClientApplication.get_accounts"
 ]
 
 { #category : #accessing }
