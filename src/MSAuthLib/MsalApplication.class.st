@@ -22,7 +22,7 @@ MsalApplication >> accessToken [
 MsalApplication >> accessToken: anObject [
 
 	accessToken := anObject.
-	accessToken configureClient: self client.
+	accessToken ifNotNil: [ accessToken configureClient: self client ].
 ]
 
 { #category : #accessing }
@@ -86,6 +86,12 @@ MsalApplication >> client [
 		yourself.
 
 	^ client
+]
+
+{ #category : #accessing }
+MsalApplication >> client: anObject [
+	
+	client := anObject
 ]
 
 { #category : #accessing }
@@ -177,6 +183,30 @@ MsalApplication >> logIn [
 ]
 
 { #category : #accessing }
+MsalApplication >> logOut [
+
+	self get_accounts ifNotEmpty: [
+		self
+			pythonSend: '
+account = app.get_accounts()[0]
+app.remove_account(account)' 
+		withBindings: {
+			#app -> self pythonInstance } ].
+			
+	self pythonInstance: nil.
+
+	"Make sure credentials are cleared from memory so that they are not saved with the image. Tried to becomeForward -> nil, but apparently that's not allowed because there was an error"
+	accessToken ifNotNil: [ 
+		accessToken becomeForward: MsalAccessToken new.
+		self accessToken: nil ].
+	client ifNotNil: [ 
+		client becomeForward: ZnClient new.
+		self client: nil ].
+			
+	Smalltalk tools webBrowser new open: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout'
+]
+
+{ #category : #accessing }
 MsalApplication >> oneNote [
 	
 	^ MsalOneNote forApplication: self
@@ -214,4 +244,13 @@ MsalApplication >> pythonSend: aString withBindings: convertibleToDictionary [
 MsalApplication >> scopes [
 	"Default to using scopes granted in Azure dashboard. You can also explicitly specify scopes e.g. { 'User.Read'. 'Notes.Read' }"
 	^ { 'https://graph.microsoft.com/.default' }
+]
+
+{ #category : #accessing }
+MsalApplication >> shutDown: isImageQuitting [
+	"To use, register with SessionManager and send from-class side method of same name. See implementors"
+
+	isImageQuitting ifFalse: [ ^ self ].
+	
+	self logOut
 ]
