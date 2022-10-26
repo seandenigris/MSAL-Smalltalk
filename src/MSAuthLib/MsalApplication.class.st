@@ -105,7 +105,8 @@ MsalApplication >> get: aUrl [
 
 	^ self 
 		get: aUrl 
-		contentReader: [ :response | response contents ]
+		contentReader: [ :response | 
+			response ifNotNil: [ response contents ] ]
 ]
 
 { #category : #accessing }
