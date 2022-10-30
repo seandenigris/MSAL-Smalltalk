@@ -11,14 +11,22 @@ MsalOneNotePage class >> url [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> creationTimestampUTC [
+
+	^ self rawData at: 'createdDateTime'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> displayStringOn: aStream [
 	aStream nextPutAll: self title
 ]
 
 { #category : #accessing }
-MsalOneNotePage >> html [
+MsalOneNotePage >> htmlDocument [
 
-	^ self application get: (self rawData at: 'contentUrl') asUrl
+	^ (XMLDOMParser parse: self htmlString)
+		removeAllFormattingNodes;
+		yourself.
 ]
 
 { #category : #accessing }
@@ -28,8 +36,14 @@ MsalOneNotePage >> htmlRawViewOn: aView [
 	^ aView textEditor
 		title: 'HTML (raw)';
 		priority: 50;
-		text: [ self html ];
+		text: [ self htmlString ];
 		actionUpdateButton
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> htmlString [
+
+	^ self application get: (self rawData at: 'contentUrl') asUrl
 ]
 
 { #category : #accessing }
