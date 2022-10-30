@@ -1,6 +1,9 @@
 Class {
 	#name : #MsalOneNotePage,
 	#superclass : #MsalObject,
+	#instVars : [
+		'creationTimestamp'
+	],
 	#category : #MSAuthLib
 }
 
@@ -8,6 +11,22 @@ Class {
 MsalOneNotePage class >> url [
 
 	^ MsalOneNote url / 'pages'
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> creationTimestamp [
+	"We use this complicated method of extracting from HTML because the API returns the UTC time and Pharo doesn't have a reliable way to translate that to local time"
+
+	| creationMeta |
+	
+	creationTimestamp ifNotNil: [ ^ creationTimestamp ].
+	
+	creationMeta := self htmlDocument / #html / #head / [ :n | 
+	n attributes 
+		at: #name 
+		ifPresent: [ :val | val = 'created' ]
+		ifAbsent: [ false ] ].
+	^ creationTimestamp := (creationMeta first attributeAt: #content) asDateAndTime translateToUTC.
 ]
 
 { #category : #accessing }
