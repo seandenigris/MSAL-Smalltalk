@@ -165,7 +165,20 @@ MsalOneNotePage >> printOn: aStream [
 
 { #category : #accessing }
 MsalOneNotePage >> title [
-	^ self rawData at: 'title'
+
+	| apiTitle htmlTitleElement htmlTitle objectReplacementCharacterValue wasTitleHandwritten |
+	apiTitle := (self rawData at: 'title') trimRight.
+	htmlTitleElement := self htmlHeadElements detect: [ :element | element name = 'title' ].
+	htmlTitle := htmlTitleElement contentString trimRight.
+	objectReplacementCharacterValue := 65532. "per https://www.charset.org/utf-8/66"
+	
+	"No added value from html title"
+	wasTitleHandwritten := htmlTitle size = 1 and: [ htmlTitle first asciiValue = objectReplacementCharacterValue ].
+	(wasTitleHandwritten or: [ htmlTitle isEmpty or: [ htmlTitle = apiTitle ] ]) ifTrue: [ ^ apiTitle ].
+	
+	(htmlTitle includesSubstring: apiTitle) ifFalse: [ self error: 'violated assumption that html title is addition to api title' ].
+	
+	^ htmlTitle
 ]
 
 { #category : #accessing }
