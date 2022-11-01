@@ -2,7 +2,8 @@ Class {
 	#name : #MsalOneNotePage,
 	#superclass : #MsalObject,
 	#instVars : [
-		'creationTimestamp'
+		'creationTimestamp',
+		'htmlString'
 	],
 	#category : #MSAuthLib
 }
@@ -21,12 +22,13 @@ MsalOneNotePage >> creationTimestamp [
 	
 	creationTimestamp ifNotNil: [ ^ creationTimestamp ].
 	
-	creationMeta := self htmlDocument / #html / #head / [ :n | 
-	n attributes 
-		at: #name 
-		ifPresent: [ :val | val = 'created' ]
-		ifAbsent: [ false ] ].
-	^ creationTimestamp := (creationMeta first attributeAt: #content) asDateAndTime translateToUTC.
+	creationMeta := self htmlHeadElements detect: [ :element | 
+		element attributes 
+			at: #name 
+			ifPresent: [ :val | val = 'created' ]
+			ifAbsent: [ false ] ].
+			
+	^ creationTimestamp := (creationMeta attributeAt: #content) asDateAndTime translateToUTC.
 ]
 
 { #category : #accessing }
@@ -42,10 +44,17 @@ MsalOneNotePage >> displayStringOn: aStream [
 
 { #category : #accessing }
 MsalOneNotePage >> htmlDocument [
-
+	"I am intended to be a temporary object which will not be refreshed, so it seems safe to cache my HTML. To sync updates, one would fetch again as a new object"
+	
 	^ (XMLDOMParser parse: self htmlString)
 		removeAllFormattingNodes;
 		yourself.
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> htmlHeadElements [
+
+	^ (self htmlDocument / #html / #head) first elements
 ]
 
 { #category : #accessing }
@@ -62,7 +71,9 @@ MsalOneNotePage >> htmlRawViewOn: aView [
 { #category : #accessing }
 MsalOneNotePage >> htmlString [
 
-	^ self application get: (self rawData at: 'contentUrl') asUrl
+	htmlString ifNotNil: [ ^ htmlString ].
+	
+	^ htmlString := self application get: (self rawData at: 'contentUrl') asUrl
 ]
 
 { #category : #accessing }
