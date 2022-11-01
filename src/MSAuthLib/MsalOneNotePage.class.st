@@ -5,8 +5,23 @@ Class {
 		'creationTimestamp',
 		'htmlString'
 	],
+	#classVars : [
+		'Handlers'
+	],
 	#category : #MSAuthLib
 }
+
+{ #category : #accessing }
+MsalOneNotePage class >> handlers [
+
+	^ Handlers ifNil: [ Handlers := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+MsalOneNotePage class >> handlers: anObject [
+
+	Handlers := anObject
+]
 
 { #category : #accessing }
 MsalOneNotePage class >> url [
@@ -40,6 +55,25 @@ MsalOneNotePage >> creationTimestampUTC [
 { #category : #accessing }
 MsalOneNotePage >> displayStringOn: aStream [
 	aStream nextPutAll: self title
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> handlers [
+
+	^ self class handlers
+		select: [ :handler | handler canHandleNote: self ]
+		thenCollect: [ :handler | handler forNote: self ]
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> handlersViewOn: aView [
+	<gtView>
+	
+	^ aView list
+		title: 'Handlers';
+		priority: 25;
+		items: [ self handlers ];
+		actionUpdateButton
 ]
 
 { #category : #accessing }
