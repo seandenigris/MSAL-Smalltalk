@@ -98,7 +98,7 @@ h.handle(input)'.
 
 	^ PBApplication uniqueInstance
 		sendSource: pySource 
-		withBindings: { #input -> self html }
+		withBindings: { #input -> self htmlString }
 ]
 
 { #category : #accessing }
