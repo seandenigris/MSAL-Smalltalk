@@ -14,7 +14,7 @@ Class {
 { #category : #accessing }
 MsalOneNotePage class >> handlers [
 
-	^ Handlers ifNil: [ Handlers := OrderedCollection new ]
+	^ Handlers ifNil: [ Handlers := Set new ]
 ]
 
 { #category : #accessing }
@@ -72,7 +72,12 @@ MsalOneNotePage >> handlersViewOn: aView [
 	^ aView list
 		title: 'Handlers';
 		priority: 25;
-		items: [ self handlers ];
+		items: [ self handlers asOrderedCollection ];
+		itemContextMenuStencil: [ :element :item |
+			BrGlamorousSimpleContextMenuContent new
+				items: {
+					'Execute' -> [ item execute ] };
+				yourself ];
 		actionUpdateButton
 ]
 
