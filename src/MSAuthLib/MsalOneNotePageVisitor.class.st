@@ -56,16 +56,20 @@ MsalOneNotePageVisitor >> visitCreationTimetamp: aDateAndTime [
 ]
 
 { #category : #accessing }
+MsalOneNotePageVisitor >> visitImageBytes: anObject [ 
+]
+
+{ #category : #accessing }
 MsalOneNotePageVisitor >> visitImageElement: anXMLElement [
 	
 	| url |
-	(anXMLElement attributeAt: 'data-src-type') = 'image/png' ifFalse: [ self error: 'only handles pngs' ].
-	
-	url := (anXMLElement attributeAt: 'src') asUrl.
+	url := (anXMLElement attributeAt: 'data-fullres-src') asUrl.
 	
 	self application
 		get: url
 		contentReader: [ :r | self visitImageBytes: r contents ]
+		
+	"`anXMLElement attributeAt: 'data-fullres-src-type'` returns a media type e.g. 'image/png'"
 ]
 
 { #category : #accessing }
