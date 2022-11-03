@@ -112,7 +112,13 @@ MsalOneNotePage >> htmlString [
 
 	htmlString ifNotNil: [ ^ htmlString ].
 	
-	^ htmlString := self application get: (self rawData at: 'contentUrl') asUrl
+	^ htmlString := self application get: self htmlUrl
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> htmlUrl [
+
+	^ (self rawData at: 'contentUrl') asUrl
 ]
 
 { #category : #accessing }
