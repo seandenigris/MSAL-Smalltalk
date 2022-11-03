@@ -32,7 +32,8 @@ MsalOneNoteSection >> pages [
 		getJsonAt: url
 		do: [ :json | 
 			(json at: 'value')
-				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ] ]
+				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ]
+				thenSelect: #exists ]
 				
 	"Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client"
 ]

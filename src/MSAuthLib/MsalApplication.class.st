@@ -159,6 +159,13 @@ MsalApplication >> get_accounts [
 ]
 
 { #category : #accessing }
+MsalApplication >> head: aUrl responseDo: aBlock [
+
+	self client head: aUrl.
+	^ aBlock value: client response
+]
+
+{ #category : #accessing }
 MsalApplication >> id [
 
 	^ id

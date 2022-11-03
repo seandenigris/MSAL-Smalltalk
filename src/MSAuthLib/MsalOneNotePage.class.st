@@ -58,6 +58,17 @@ MsalOneNotePage >> displayStringOn: aStream [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> exists [
+
+	^ true.
+	
+	"fetching contents takes too long and HEAD fails with a 405 error
+	self application 
+		head: self htmlUrl 
+		responseDo: [ :response | response isNotFound not ]."
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> handlers [
 
 	^ self class handlers
