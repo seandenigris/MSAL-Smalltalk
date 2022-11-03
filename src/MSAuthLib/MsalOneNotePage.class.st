@@ -134,6 +134,17 @@ MsalOneNotePage >> links [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> liveViewOn: aView [
+	<gtView>
+	
+	^ aView explicit
+		title: 'Live';
+		priority: 12;
+		stencil: [ MsalOneNotePageElementVisitor visit: self ];
+		actionUpdateButton
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> markdown [
 
 	| pySource |
