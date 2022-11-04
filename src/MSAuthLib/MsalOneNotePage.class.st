@@ -108,6 +108,12 @@ MsalOneNotePage >> htmlHeadElements [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> htmlLinks [
+
+	^ self htmlBody // 'a'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> htmlRawViewOn: aView [
 	<gtView>
 	
