@@ -3,7 +3,9 @@ Class {
 	#superclass : #MsalObject,
 	#instVars : [
 		'creationTimestamp',
-		'htmlString'
+		'htmlString',
+		'doesContentExist',
+		'title'
 	],
 	#classVars : [
 		'Handlers'
@@ -24,9 +26,17 @@ MsalOneNotePage class >> handlers: anObject [
 ]
 
 { #category : #accessing }
-MsalOneNotePage class >> url [
+MsalOneNotePage class >> urlFromRoot: aUrl [
 
-	^ MsalOneNote url / 'pages'
+	^ aUrl / 'pages' ? ('$top' -> 100) & ('$orderby' -> 'createdDateTime desc')
+	
+	"
+	Other possible parameter examples:
+	- ?search=""Socrates""
+	
+	Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client
+	
+	Query parameters reference: https://learn.microsoft.com/en-us/graph/query-parameters"
 ]
 
 { #category : #accessing }
@@ -60,9 +70,10 @@ MsalOneNotePage >> displayStringOn: aStream [
 { #category : #accessing }
 MsalOneNotePage >> exists [
 
-	^ true.
+	self htmlString.		
+	^ doesContentExist
 	
-	"fetching contents takes too long and HEAD fails with a 405 error
+	"Would like to do a HEAD, but fails with a 405 error
 	self application 
 		head: self htmlUrl 
 		responseDo: [ :response | response isNotFound not ]."
@@ -94,7 +105,6 @@ MsalOneNotePage >> handlersViewOn: aView [
 
 { #category : #accessing }
 MsalOneNotePage >> htmlDocument [
-	"I am intended to be a temporary object which will not be refreshed, so it seems safe to cache my HTML. To sync updates, one would fetch again as a new object"
 	
 	^ (XMLDOMParser parse: self htmlString)
 		removeAllFormattingNodes;
@@ -127,9 +137,19 @@ MsalOneNotePage >> htmlRawViewOn: aView [
 { #category : #accessing }
 MsalOneNotePage >> htmlString [
 
-	htmlString ifNotNil: [ ^ htmlString ].
+	doesContentExist ifNotNil: [ ^ htmlString ].
 	
-	^ htmlString := self application get: self htmlUrl
+	[ 
+		htmlString := self application get: self htmlUrl.
+		doesContentExist := true
+	]
+		on: ZnHttpUnsuccessful
+		do: [ :err |
+			err response isNotFound 
+				ifTrue: [ doesContentExist := false ]
+				ifFalse: [ err pass ] ].
+				
+	^ htmlString
 ]
 
 { #category : #accessing }
@@ -240,6 +260,9 @@ MsalOneNotePage >> printOn: aStream [
 MsalOneNotePage >> title [
 
 	| apiTitle htmlTitleElement htmlTitle objectReplacementCharacterValue wasTitleHandwritten |
+	
+	title ifNotNil: [ ^ title ].
+	
 	apiTitle := (self rawData at: 'title') trimRight.
 	htmlTitleElement := self htmlHeadElements detect: [ :element | element name = 'title' ].
 	htmlTitle := htmlTitleElement contentString trimRight.
@@ -247,11 +270,11 @@ MsalOneNotePage >> title [
 	
 	"No added value from html title"
 	wasTitleHandwritten := htmlTitle size = 1 and: [ htmlTitle first asciiValue = objectReplacementCharacterValue ].
-	(wasTitleHandwritten or: [ htmlTitle isEmpty or: [ htmlTitle = apiTitle ] ]) ifTrue: [ ^ apiTitle ].
+	(wasTitleHandwritten or: [ htmlTitle isEmpty or: [ htmlTitle = apiTitle ] ]) ifTrue: [ ^ title := apiTitle ].
 	
 	(htmlTitle includesSubstring: apiTitle) ifFalse: [ self error: 'violated assumption that html title is addition to api title' ].
 	
-	^ htmlTitle
+	^ title := htmlTitle
 ]
 
 { #category : #accessing }

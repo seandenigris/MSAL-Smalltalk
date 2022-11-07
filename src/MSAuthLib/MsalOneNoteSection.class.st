@@ -10,6 +10,20 @@ MsalOneNoteSection >> displayStringOn: aStream [
 ]
 
 { #category : #accessing }
+MsalOneNoteSection >> getPages [
+
+	| url |
+	url := MsalOneNotePage urlFromRoot: self url.
+
+	^ self application
+		getJsonAt: url
+		do: [ :json | 
+			(json at: 'value')
+				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ]
+				thenSelect: #exists ]
+]
+
+{ #category : #accessing }
 MsalOneNoteSection >> id [
 	^ self rawData at: 'id'
 ]
@@ -21,21 +35,17 @@ MsalOneNoteSection >> name [
 
 { #category : #accessing }
 MsalOneNoteSection >> pages [
-	| url baseUrl endpoint |
-	baseUrl := 'https://graph.microsoft.com/v1.0/' asUrl.
-	endpoint := baseUrl / 'me'.
-	
 	"Query parameters reference: https://learn.microsoft.com/en-us/graph/query-parameters"
-	url := endpoint asUrl / 'onenote' / 'sections' / self id / 'pages' ? ('$top' -> 100) & ('$orderby' -> 'createdDateTime desc').
-	
+
+	| url |
+	url := MsalOneNotePage urlFromRoot: self url.
+
 	^ self application
 		getJsonAt: url
-		do: [ :json | 
+		do: [  "Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client":json | 
 			(json at: 'value')
 				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ]
 				thenSelect: #exists ]
-				
-	"Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client"
 ]
 
 { #category : #accessing }
@@ -56,4 +66,9 @@ MsalOneNoteSection >> printOn: aStream [
 	aStream nextPutAll: ' ('.
 	super printOn: aStream.
 	aStream nextPutAll: ')'.
+]
+
+{ #category : #accessing }
+MsalOneNoteSection >> url [
+	^ MsalOneNote url / 'sections' / self id
 ]

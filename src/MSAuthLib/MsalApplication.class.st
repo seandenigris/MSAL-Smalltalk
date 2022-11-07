@@ -6,7 +6,8 @@ Class {
 		'pythonInstance',
 		'id',
 		'authorityUrl',
-		'client'
+		'client',
+		'oneNote'
 	],
 	#category : #MSAuthLib
 }
@@ -159,6 +160,21 @@ MsalApplication >> get_accounts [
 ]
 
 { #category : #accessing }
+MsalApplication >> graphMetadata [
+
+	^ self
+		get: self graphServiceRootUrl / '$metadata'
+		contentReader: [ :r | XMLDOMParser parse: r contents ]
+		
+	"Reference: https://learn.microsoft.com/en-us/graph/traverse-the-graph#microsoft-graph-api-metadata"
+]
+
+{ #category : #accessing }
+MsalApplication >> graphServiceRootUrl [
+	^ 'https://graph.microsoft.com/v1.0' asUrl
+]
+
+{ #category : #accessing }
 MsalApplication >> head: aUrl responseDo: aBlock [
 
 	self client head: aUrl.
@@ -217,7 +233,7 @@ app.remove_account(account)'
 { #category : #accessing }
 MsalApplication >> oneNote [
 	
-	^ MsalOneNote forApplication: self
+	^ oneNote ifNil: [ oneNote := MsalOneNote forApplication: self ]
 ]
 
 { #category : #accessing }
