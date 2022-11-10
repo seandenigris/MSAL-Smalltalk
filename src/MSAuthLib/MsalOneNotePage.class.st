@@ -95,9 +95,8 @@ MsalOneNotePage >> displayStringOn: aStream [
 
 { #category : #accessing }
 MsalOneNotePage >> exists [
-
-	self htmlString.		
-	^ doesContentExist
+		
+	^ self isContentMissing
 	
 	"Would like to do a HEAD, but fails with a 405 error
 	self application 
@@ -319,6 +318,9 @@ MsalOneNotePage >> title [
 	title ifNotNil: [ ^ title ].
 	
 	apiTitle := (self rawData at: 'title') trimRight.
+	
+	self htmlString ifNil: [ ^ title := apiTitle ].
+	
 	htmlTitleElement := self htmlHeadElements detect: [ :element | element name = 'title' ].
 	htmlTitle := htmlTitleElement contentString trimRight.
 	objectReplacementCharacterValue := 65532. "per https://www.charset.org/utf-8/66"
