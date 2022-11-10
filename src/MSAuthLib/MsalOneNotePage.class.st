@@ -240,6 +240,12 @@ MsalOneNotePage >> markdownViewOn: aView [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> parentSectionID [
+
+	^ (self rawData at: 'parentSection') at: 'id'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> presentInClient [
 
 	^ ((self links at: 'oneNoteClientUrl') at: 'href') asUrl open
