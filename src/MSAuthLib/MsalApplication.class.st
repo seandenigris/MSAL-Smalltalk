@@ -12,6 +12,12 @@ Class {
 	#category : #MSAuthLib
 }
 
+{ #category : #fuel }
+MsalApplication class >> fuelIgnoredInstanceVariableNames [
+
+	^ #('accessToken' 'pythonInstance' 'client')
+]
+
 { #category : #accessing }
 MsalApplication >> accessToken [
 
