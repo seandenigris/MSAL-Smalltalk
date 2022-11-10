@@ -1,3 +1,6 @@
+"
+nil
+"
 Class {
 	#name : #MsalOneNotePage,
 	#superclass : #MsalObject,
@@ -5,13 +8,27 @@ Class {
 		'creationTimestamp',
 		'htmlString',
 		'doesContentExist',
-		'title'
+		'title',
+		'log'
 	],
 	#classVars : [
 		'Handlers'
 	],
 	#category : #MSAuthLib
 }
+
+{ #category : #'instance creation' }
+MsalOneNotePage class >> fromDictionary: aDictionary forApplication: anMsalApplication [
+
+	| result |
+	result := super 
+		fromDictionary: aDictionary 
+		forApplication: anMsalApplication.
+		
+	^ result
+		updateStatus;
+		yourself
+]
 
 { #category : #accessing }
 MsalOneNotePage class >> handlers [
@@ -137,16 +154,13 @@ MsalOneNotePage >> htmlRawViewOn: aView [
 { #category : #accessing }
 MsalOneNotePage >> htmlString [
 
-	doesContentExist ifNotNil: [ ^ htmlString ].
+	(self isContentMissing or: [ htmlString isNotNil ]) ifTrue: [ ^ htmlString ].
 	
-	[ 
-		htmlString := self application get: self htmlUrl.
-		doesContentExist := true
-	]
+	[ htmlString := self application get: self htmlUrl ]
 		on: ZnHttpUnsuccessful
 		do: [ :err |
 			err response isNotFound 
-				ifTrue: [ doesContentExist := false ]
+				ifTrue: [ self status: MsalNotePageContentsMissingStatus new ]
 				ifFalse: [ err pass ] ].
 				
 	^ htmlString
@@ -165,6 +179,12 @@ MsalOneNotePage >> id [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> isContentMissing [
+
+	^ self status isKindOf: MsalNotePageContentsMissingStatus
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> links [
 
 	^ self rawData at: 'links'
@@ -179,6 +199,12 @@ MsalOneNotePage >> liveViewOn: aView [
 		priority: 12;
 		stencil: [ MsalOneNotePageElementVisitor visit: self ];
 		actionUpdateButton
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> log [
+
+	^ log ifNil: [ log := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -257,6 +283,26 @@ MsalOneNotePage >> printOn: aStream [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> status [
+	^ self log
+		ifNotEmpty: [ :lg | lg last ]
+		ifEmpty: [ 
+			"We don't lazy initialize because it is done in #initialize"
+			nil ]
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> status: aStatus [
+	
+	"This guard was added because Magritte was adding duplicate statuses"
+	self status = aStatus ifTrue: [ ^ self ].
+	
+	aStatus timestamp ifNil: [ aStatus timestamp: DateAndTime now translateToUTC ].
+
+	self log add: aStatus
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> title [
 
 	| apiTitle htmlTitleElement htmlTitle objectReplacementCharacterValue wasTitleHandwritten |
@@ -275,6 +321,18 @@ MsalOneNotePage >> title [
 	(htmlTitle includesSubstring: apiTitle) ifFalse: [ self error: 'violated assumption that html title is addition to api title' ].
 	
 	^ title := htmlTitle
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> updateStatus [
+
+	| statusType |
+	self htmlString.
+	statusType := self isContentMissing
+		ifTrue: [ MsalNotePageContentsMissingStatus ]
+		ifFalse: [ MsalNotePageActiveStatus ].
+		
+	self status: statusType new
 ]
 
 { #category : #accessing }

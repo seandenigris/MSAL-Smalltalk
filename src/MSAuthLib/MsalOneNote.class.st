@@ -1,10 +1,14 @@
+"
+nil
+"
 Class {
 	#name : #MsalOneNote,
 	#superclass : #Object,
 	#instVars : [
 		'application',
 		'pages',
-		'missingPageIDs'
+		'missingPageIDs',
+		'trash'
 	],
 	#category : #MSAuthLib
 }
@@ -85,16 +89,7 @@ MsalOneNote >> notebooksViewOn: aView [
 { #category : #accessing }
 MsalOneNote >> pages [
 
-	^ pages
-]
-
-{ #category : #accessing }
-MsalOneNote >> removePagesMissingContent [
-
-	| missingPages |
-	missingPages := pages reject: #exists.
-	missingPages do: [ :page | self missingPageIDs add: page id ].
-	pages removeAll: missingPages
+	^ pages select: [ :page | page status isActive ]
 ]
 
 { #category : #accessing }
@@ -103,15 +98,10 @@ MsalOneNote >> syncPages [
 	| freshPages |
 	freshPages := self getPages.
 	
-	pages ifNil: [ 
-		pages := freshPages.
-		self removePagesMissingContent.
-		^ pages ].
+	pages ifNil: [ ^ pages := freshPages ].
 	
 	self syncPagesPresentIn: freshPages.
 	self syncPagesMissingFrom: freshPages.
-	
-	"self removePagesMissingContent"
 ]
 
 { #category : #'private-syncing' }
@@ -120,7 +110,7 @@ MsalOneNote >> syncPagesMissingFrom: aCollection [
 	pages do: [ :existingPage |
 		aCollection
 			detect: [ :freshPage | freshPage id = existingPage id ]
-			ifNone: [ pages remove: existingPage ] ].
+			ifNone: [ existingPage status: MsalNotePageDeletedExternallyStatus new ] ].
 ]
 
 { #category : #'private-syncing' }
