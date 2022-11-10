@@ -7,8 +7,7 @@ Class {
 	#instVars : [
 		'application',
 		'pages',
-		'missingPageIDs',
-		'trash'
+		'missingPageIDs'
 	],
 	#category : #MSAuthLib
 }
@@ -45,17 +44,26 @@ MsalOneNote >> application: anObject [
 { #category : #accessing }
 MsalOneNote >> getPages [
 
-	| url |
+	| url totalPages pageDicts result |
 	url := MsalOneNotePage urlFromRoot: self class url.
-	^ self application 
-		getJsonAt: url
-		do: [ :json |
-			(json at: 'value') 
-				collect: [ :dict |
-					MsalOneNotePage 
+	result := OrderedCollection new.
+	
+	[
+		self application 
+			getJsonAt: url ? ('skip' -> result size)
+			do: [ :json |
+				totalPages := (json at: '@odata.count').
+				pageDicts := (json at: 'value').
+				pageDicts do: [ :dict |
+					| page |
+					page := MsalOneNotePage 
 						fromDictionary: dict
-						forApplication: self application ]
-				as: OrderedCollection ]
+						forApplication: self application.
+					result add: page ] ]
+	]
+		doWhileTrue: [ result size < totalPages ].
+		
+	^ result	
 ]
 
 { #category : #accessing }
