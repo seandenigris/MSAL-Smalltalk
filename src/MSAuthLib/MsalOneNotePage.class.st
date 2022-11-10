@@ -338,5 +338,5 @@ MsalOneNotePage >> updateStatus [
 { #category : #accessing }
 MsalOneNotePage >> url [
 
-	^ self class url / self id
+	^ MsalOneNote url / 'pages' / self id
 ]
