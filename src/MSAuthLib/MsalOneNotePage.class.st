@@ -79,6 +79,15 @@ MsalOneNotePage >> creationTimestampUTC [
 	^ self rawData at: 'createdDateTime'
 ]
 
+{ #category : #actions }
+MsalOneNotePage >> delete [
+
+	self application delete: self url.
+	self status: MsalNotePageDeletedLocallyStatus new
+	
+	"Reference: https://learn.microsoft.com/en-us/graph/api/page-delete?view=graph-rest-1.0&tabs=http"
+]
+
 { #category : #accessing }
 MsalOneNotePage >> displayStringOn: aStream [
 	aStream nextPutAll: self title
