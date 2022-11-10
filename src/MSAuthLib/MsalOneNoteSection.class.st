@@ -35,17 +35,9 @@ MsalOneNoteSection >> name [
 
 { #category : #accessing }
 MsalOneNoteSection >> pages [
-	"Query parameters reference: https://learn.microsoft.com/en-us/graph/query-parameters"
-
-	| url |
-	url := MsalOneNotePage urlFromRoot: self url.
-
-	^ self application
-		getJsonAt: url
-		do: [  "Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client":json | 
-			(json at: 'value')
-				collect: [ :dict | MsalOneNotePage fromDictionary: dict forApplication: self application ]
-				thenSelect: #exists ]
+	
+	^ self application oneNote pages select: [ :page |
+		page parentSectionID = self id ].
 ]
 
 { #category : #accessing }
