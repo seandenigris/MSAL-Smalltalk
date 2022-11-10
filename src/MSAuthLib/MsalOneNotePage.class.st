@@ -45,7 +45,7 @@ MsalOneNotePage class >> handlers: anObject [
 { #category : #accessing }
 MsalOneNotePage class >> urlFromRoot: aUrl [
 
-	^ aUrl / 'pages' ? ('$top' -> 100) & ('$orderby' -> 'createdDateTime desc')
+	^ aUrl / 'pages' ? ('$top' -> 100) & ('$orderby' -> 'createdDateTime desc') & ('count' -> true)
 	
 	"
 	Other possible parameter examples:
