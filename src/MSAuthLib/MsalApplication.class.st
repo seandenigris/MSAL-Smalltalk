@@ -214,26 +214,18 @@ MsalApplication >> logIn [
 
 { #category : #accessing }
 MsalApplication >> logOut [
-
-	self get_accounts ifNotEmpty: [
-		self
+	
+	self get_accounts ifNotEmpty: [ 
+		self 
 			pythonSend: '
 account = app.get_accounts()[0]
-app.remove_account(account)' 
-		withBindings: {
-			#app -> self pythonInstance } ].
-			
-	self pythonInstance: nil.
-
-	"Make sure credentials are cleared from memory so that they are not saved with the image. Tried to becomeForward -> nil, but apparently that's not allowed because there was an error"
-	accessToken ifNotNil: [ 
-		accessToken becomeForward: MsalAccessToken new.
-		self accessToken: nil ].
-	client ifNotNil: [ 
-		client becomeForward: ZnClient new.
-		self client: nil ].
-			
-	Smalltalk tools webBrowser new open: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout'
+app.remove_account(account)'
+			withBindings: {#app -> self pythonInstance} ].
+				
+	self reset.
+	
+	Smalltalk tools webBrowser new
+		open: 'https://login.microsoftonline.com/common/oauth2/v2.0/logout'
 ]
 
 { #category : #accessing }
@@ -268,6 +260,19 @@ MsalApplication >> pythonSend: aString withBindings: convertibleToDictionary [
 		sendSource: 'import msal
 ' , aString
 		withBindings: convertibleToDictionary
+]
+
+{ #category : #accessing }
+MsalApplication >> reset [
+	self pythonInstance: nil.	
+	
+	"Make sure credentials are cleared from memory so that they are not saved with the image. Tried to becomeForward -> nil, but apparently that's not allowed because there was an error"
+	accessToken
+		ifNotNil: [ accessToken becomeForward: MsalAccessToken new.
+			self accessToken: nil ].
+	client
+		ifNotNil: [ client becomeForward: ZnClient new.
+			self client: nil ]
 ]
 
 { #category : #accessing }
