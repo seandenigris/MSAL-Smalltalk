@@ -6,8 +6,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'application',
-		'pages',
-		'missingPageIDs'
+		'pages'
 	],
 	#category : #MSAuthLib
 }
@@ -67,11 +66,6 @@ MsalOneNote >> getPages [
 ]
 
 { #category : #accessing }
-MsalOneNote >> missingPageIDs [
-	^ missingPageIDs ifNil: [ missingPageIDs := Set new ]
-]
-
-{ #category : #accessing }
 MsalOneNote >> notebooks [
 
 	^ self application 
@@ -100,33 +94,52 @@ MsalOneNote >> pages [
 	^ pages select: [ :page | page status isActive ]
 ]
 
+{ #category : #'private-syncing' }
+MsalOneNote >> syncAddCommandsTo: cmdCollection forPagesMissingFrom: pageCollection [ 
+
+	pages do: [ :existingPage |
+		pageCollection
+			detect: [ :freshPage | freshPage id = existingPage id ]
+			ifNone: [ 
+				| cmd |
+				cmd := MsalNotePageDelete page: existingPage.
+				cmdCollection add: cmd ] ].
+]
+
+{ #category : #'private-syncing' }
+MsalOneNote >> syncAddCommandsTo: cmdCollection forPagesPresentIn: pageCollection [
+
+	pageCollection do: [ :freshPage | 
+		| cmd |
+		cmd := pages
+			detect: [ :existingPage | freshPage id = existingPage id ]
+			ifFound: [ :existingPage | 
+				MsalNotePageMerge 
+					newPage: freshPage 
+					oldPage: existingPage ]
+			ifNone: [ MsalNotePageAdd page: freshPage container: self pages ].
+		cmdCollection add: cmd ]
+]
+
 { #category : #accessing }
 MsalOneNote >> syncPages [
 
-	| freshPages |
+	| freshPages syncCommands |
 	freshPages := self getPages.
 	
 	pages ifNil: [ ^ pages := freshPages ].
 	
-	self syncPagesPresentIn: freshPages.
-	self syncPagesMissingFrom: freshPages.
-]
-
-{ #category : #'private-syncing' }
-MsalOneNote >> syncPagesMissingFrom: aCollection [ 
-
-	pages do: [ :existingPage |
-		aCollection
-			detect: [ :freshPage | freshPage id = existingPage id ]
-			ifNone: [ existingPage status: MsalNotePageDeletedExternallyStatus new ] ].
-]
-
-{ #category : #'private-syncing' }
-MsalOneNote >> syncPagesPresentIn: aCollection [
-
-	aCollection do: [ :freshPage | 
-		pages
-			detect: [ :existingPage | freshPage id = existingPage id ]
-			ifFound: [ :existingPage | existingPage syncFrom: freshPage ]
-			ifNone: [ pages add: freshPage ] ]
+	syncCommands := Bag new.
+	
+	self 
+		syncAddCommandsTo: syncCommands 
+		forPagesPresentIn: freshPages.
+		
+	self 
+		AddCommandsTo: syncCommands 
+		forPagesMissingFrom: freshPages.
+		
+	Halt now.
+		
+	syncCommands do: #execute
 ]

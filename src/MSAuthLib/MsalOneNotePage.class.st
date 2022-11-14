@@ -240,6 +240,12 @@ MsalOneNotePage >> markdownViewOn: aView [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> modificationTimestampUTC [
+
+	^ self rawData at: 'lastModifiedDateTime'
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> parentSectionID [
 
 	^ (self rawData at: 'parentSection') at: 'id'
