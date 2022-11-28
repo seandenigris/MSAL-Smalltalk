@@ -30,6 +30,23 @@ MsalOneNotePageElementVisitor >> visit: aPage [
 ]
 
 { #category : #accessing }
+MsalOneNotePageElementVisitor >> visitAnchorElement: anXMLElement [
+	
+	| url clickAttr text |
+	url := anXMLElement attributeAt: #href.
+	clickAttr := BrTextClickAttribute new 
+		beNotOverwritableByStyler;
+		action: [ :aText :aTarget :aTextEditor :anEvent | 
+			Smalltalk tools webBrowser open: url  ].
+	text := url asRopedText
+		attribute: clickAttr;
+		"bold; what is the Lepiter link styling"
+		yourself.
+		
+	self element addChild: (BlTextElement text: text).
+]
+
+{ #category : #accessing }
 MsalOneNotePageElementVisitor >> visitCreationTimetamp: aDateAndTime [
 	"self project status timestamp: aDateAndTime."
 ]

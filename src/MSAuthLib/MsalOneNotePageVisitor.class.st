@@ -39,9 +39,14 @@ MsalOneNotePageVisitor >> visit: aPage [
 ]
 
 { #category : #accessing }
+MsalOneNotePageVisitor >> visitAnchorElement: anXMLElement [ 
+]
+
+{ #category : #accessing }
 MsalOneNotePageVisitor >> visitBodyElement: anXMLElement [
 
-	anXMLElement name = 'img' ifTrue: [ ^ self visitImageElement: anXMLElement ]
+	anXMLElement name = 'img' ifTrue: [ ^ self visitImageElement: anXMLElement ].
+	anXMLElement name = 'a' ifTrue: [ ^ self visitAnchorElement: anXMLElement ]
 ]
 
 { #category : #accessing }
