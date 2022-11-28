@@ -322,6 +322,16 @@ MsalOneNotePage >> status: aStatus [
 	self log add: aStatus
 ]
 
+{ #category : #'as yet unclassified' }
+MsalOneNotePage >> syncFrom: newPage [ 
+	
+	self rawData: newPage rawData.
+	htmlString := newPage htmlString.
+	title := newPage title.
+	
+	self status class = newPage status class ifFalse: [ self status: newPage status ]
+]
+
 { #category : #accessing }
 MsalOneNotePage >> title [
 

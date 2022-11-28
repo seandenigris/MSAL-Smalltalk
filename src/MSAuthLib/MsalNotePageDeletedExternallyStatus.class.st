@@ -3,3 +3,8 @@ Class {
 	#superclass : #MsalNotePageStatus,
 	#category : #MSAuthLib
 }
+
+{ #category : #accessing }
+MsalNotePageDeletedExternallyStatus >> isExternallyDeleted [
+	^ true
+]

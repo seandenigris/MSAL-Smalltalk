@@ -43,6 +43,11 @@ MsalNotePageStatus >> isActive [
 	^ false
 ]
 
+{ #category : #accessing }
+MsalNotePageStatus >> isExternallyDeleted [
+	^ false
+]
+
 { #category : #testing }
 MsalNotePageStatus >> isInactive [
 	^ false

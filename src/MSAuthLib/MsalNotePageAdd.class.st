@@ -11,7 +11,7 @@ Class {
 MsalNotePageAdd class >> page: aPage container: aCollection [
 
 	^ (self page: aPage)
-		collection: aCollection;
+		container: aCollection;
 		yourself
 ]
 

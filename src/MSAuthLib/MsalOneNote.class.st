@@ -66,6 +66,22 @@ MsalOneNote >> getPages [
 ]
 
 { #category : #accessing }
+MsalOneNote >> getPagesUrls [
+
+	| url totalPages pageDicts result |
+	url := MsalOneNotePage urlFromRoot: self class url.
+	result := OrderedCollection new.
+	totalPages := 0.
+	[
+		result add: (url queryRemoveKey: '$top') ? ('$top' -> 50) & ('skip' -> totalPages).
+		totalPages := totalPages + 50.
+	]
+		doWhileTrue: [ totalPages <= 100 ].
+		
+	^ result	
+]
+
+{ #category : #accessing }
 MsalOneNote >> notebooks [
 
 	^ self application 
@@ -94,52 +110,15 @@ MsalOneNote >> pages [
 	^ pages select: [ :page | page status isActive ]
 ]
 
-{ #category : #'private-syncing' }
-MsalOneNote >> syncAddCommandsTo: cmdCollection forPagesMissingFrom: pageCollection [ 
-
-	pages do: [ :existingPage |
-		pageCollection
-			detect: [ :freshPage | freshPage id = existingPage id ]
-			ifNone: [ 
-				| cmd |
-				cmd := MsalNotePageDelete page: existingPage.
-				cmdCollection add: cmd ] ].
-]
-
-{ #category : #'private-syncing' }
-MsalOneNote >> syncAddCommandsTo: cmdCollection forPagesPresentIn: pageCollection [
-
-	pageCollection do: [ :freshPage | 
-		| cmd |
-		cmd := pages
-			detect: [ :existingPage | freshPage id = existingPage id ]
-			ifFound: [ :existingPage | 
-				MsalNotePageMerge 
-					newPage: freshPage 
-					oldPage: existingPage ]
-			ifNone: [ MsalNotePageAdd page: freshPage container: self pages ].
-		cmdCollection add: cmd ]
-]
-
 { #category : #accessing }
 MsalOneNote >> syncPages [
 
-	| freshPages syncCommands |
+	| freshPages sync |
 	freshPages := self getPages.
 	
 	pages ifNil: [ ^ pages := freshPages ].
 	
-	syncCommands := Bag new.
-	
-	self 
-		syncAddCommandsTo: syncCommands 
-		forPagesPresentIn: freshPages.
-		
-	self 
-		AddCommandsTo: syncCommands 
-		forPagesMissingFrom: freshPages.
-		
+	sync := MsalNoteSync from: freshPages to: pages.
 	Halt now.
-		
-	syncCommands do: #execute
+	sync execute
 ]
