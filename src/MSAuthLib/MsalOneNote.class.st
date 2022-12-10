@@ -43,42 +43,43 @@ MsalOneNote >> application: anObject [
 { #category : #accessing }
 MsalOneNote >> getPages [
 
-	| url totalPages pageDicts result |
-	url := MsalOneNotePage urlFromRoot: self class url.
-	result := OrderedCollection new.
+	| pageQueries batch pagesResponse |
+	pageQueries := self getPagesUrls.
+	batch := MsalGraphBatchRequest fromRootUrl: 'https://graph.microsoft.com/v1.0/' asUrl.
+	batch requests: pageQueries.
+	pagesResponse := (batch sendTo: self application) at: 'responses'.
 	
-	[
-		self application 
-			getJsonAt: url ? ('skip' -> result size)
-			do: [ :json |
-				totalPages := (json at: '@odata.count').
-				pageDicts := (json at: 'value').
-				pageDicts do: [ :dict |
-					| page |
-					page := MsalOneNotePage 
-						fromDictionary: dict
-						forApplication: self application.
-					result add: page ] ]
-	]
-		doWhileTrue: [ result size < totalPages ].
-		
-	^ result	
+	^ OrderedCollection streamContents: [ :str |
+		pagesResponse do: [ :json |
+			| pageDicts |
+			pageDicts := ((json at: 'body') at: 'value').
+			pageDicts do: [ :dict |
+						| page |
+						page := MsalOneNotePage 
+							fromDictionary: dict
+							forApplication: self application.
+						str << page ] ] ]
 ]
 
 { #category : #accessing }
 MsalOneNote >> getPagesUrls [
 
-	| url totalPages pageDicts result |
-	url := MsalOneNotePage urlFromRoot: self class url.
+	| query totalPages handledPages result pageSize |
+	query := MsalNotePageListQuery fromRootUrl: self class url.
+	totalPages := query beCountOnly sendTo: self application.
+	
 	result := OrderedCollection new.
-	totalPages := 0.
+	pageSize := 50"query topMaxPages".
+	handledPages := 0.
 	[
-		result add: (url queryRemoveKey: '$top') ? ('$top' -> 50) & ('skip' -> totalPages).
-		totalPages := totalPages + 50.
+		query := MsalNotePageListQuery fromRootUrl: self class url.
+		query top: pageSize; skip: handledPages.
+		result add: query.
+		handledPages := handledPages + pageSize.
 	]
-		doWhileTrue: [ totalPages <= 100 ].
+		doWhileTrue: [ handledPages < totalPages ].
 		
-	^ result	
+	^ result
 ]
 
 { #category : #accessing }

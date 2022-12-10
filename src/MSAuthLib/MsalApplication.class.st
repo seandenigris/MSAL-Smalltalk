@@ -90,6 +90,7 @@ MsalApplication >> client [
 
 	client := ZnClient new
 		systemPolicy;
+		autoResetEntityMethods: #(GET POST HEAD DELETE);
 		yourself.
 
 	^ client
@@ -99,6 +100,42 @@ MsalApplication >> client [
 MsalApplication >> client: anObject [
 	
 	client := anObject
+]
+
+{ #category : #accessing }
+MsalApplication >> clientHTTP: aSelector jsonAt: aUrl do: aBlock [
+
+	^ self
+		clientHTTP: aSelector
+		url: aUrl
+		contentReader: [ :response |
+			| json |
+			json := STONJSON fromString: response contents.
+			json 
+				at: 'error'
+				ifPresent: [ :err | 
+					| errMsg |
+					errMsg := err at: 'message'.
+					self error: errMsg ].
+			aBlock value: json ]
+]
+
+{ #category : #accessing }
+MsalApplication >> clientHTTP: aSelector url: aUrl contentReader: aBlock [
+
+	
+	^ [ self client 
+			contentReader: aBlock;
+			url: aUrl;
+			perform: aSelector
+	]
+		on: ZnHttpUnsuccessful
+		do: [ :err |
+			err response code = 401 
+				ifTrue: [ 
+					self logIn.
+					self client perform: aSelector ]
+				ifFalse: [ err pass ] ]
 ]
 
 { #category : #accessing }
@@ -118,36 +155,20 @@ MsalApplication >> get: aUrl [
 
 { #category : #accessing }
 MsalApplication >> get: aUrl contentReader: aBlock [
-
 	
-	^ [ self client 
-			contentReader: aBlock;
-			get: aUrl
-	]
-		on: ZnHttpUnsuccessful
-		do: [ :err |
-			err response code = 401 
-				ifTrue: [ 
-					self logIn.
-					self client get: aUrl ]
-				ifFalse: [ err pass ] ]
+	^ self 
+		clientHTTP: #get 
+		url: aUrl 
+		contentReader: aBlock
 ]
 
 { #category : #accessing }
 MsalApplication >> getJsonAt: aUrl do: aBlock [
 
 	^ self
-		get: aUrl
-		contentReader: [ :response |
-			| json |
-			json := STONJSON fromString: response contents.
-			json 
-				at: 'error'
-				ifPresent: [ :err | 
-					| errMsg |
-					errMsg := err at: 'message'.
-					self error: errMsg ].
-			aBlock value: json ]
+		clientHTTP: #get 
+		jsonAt: aUrl 
+		do: aBlock
 ]
 
 { #category : #accessing }
