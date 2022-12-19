@@ -90,10 +90,11 @@ MsalApplication >> client [
 
 	client := ZnClient new
 		systemPolicy;
-		autoResetEntityMethods: #(GET POST HEAD DELETE);
 		yourself.
 
-	^ client
+	^ client.
+	
+	"Implementation note: was hoping that `client autoResetEntityMethods: #(GET POST HEAD DELETE);` would reset the entity *after* the request, but it apparently wipes it out just before the request. Not sure what the use case is, but we need to set the entity for POST"
 ]
 
 { #category : #accessing }
