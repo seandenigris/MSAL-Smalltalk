@@ -43,22 +43,21 @@ MsalOneNote >> application: anObject [
 { #category : #accessing }
 MsalOneNote >> getPages [
 
-	| pageQueries batch pagesResponse |
+	| pageQueries batch result |
+	result := OrderedCollection new.
 	pageQueries := self getPagesUrls.
-	batch := MsalGraphBatchRequest fromRootUrl: 'https://graph.microsoft.com/v1.0/' asUrl.
+	pageQueries do: [ :query | 
+		query onSuccess: [ :col |
+			result addAll: col ] ].
+	batch := MsalGraphBatchRequest forGraphV1.
 	batch requests: pageQueries.
-	pagesResponse := (batch sendTo: self application) at: 'responses'.
+	batch sendTo: self application.
 	
-	^ OrderedCollection streamContents: [ :str |
-		pagesResponse do: [ :json |
-			| pageDicts |
-			pageDicts := ((json at: 'body') at: 'value').
-			pageDicts do: [ :dict |
-						| page |
-						page := MsalOneNotePage 
-							fromDictionary: dict
-							forApplication: self application.
-						str << page ] ] ]
+	batch := MsalGraphBatchRequest forGraphV1.				
+	result do: [ :page | batch addRequest: page contentQuery ].
+	batch sendTo: MsalDynabookApp uniqueInstance.
+	
+	^ result
 ]
 
 { #category : #accessing }
@@ -69,7 +68,7 @@ MsalOneNote >> getPagesUrls [
 	totalPages := query beCountOnly sendTo: self application.
 	
 	result := OrderedCollection new.
-	pageSize := 50"query topMaxPages".
+	pageSize := query topMaxPages.
 	handledPages := 0.
 	[
 		query := MsalNotePageListQuery fromRootUrl: self class url.

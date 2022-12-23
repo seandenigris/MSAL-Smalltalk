@@ -2,89 +2,90 @@ Class {
 	#name : #MsalGraphBatchRequest,
 	#superclass : #Object,
 	#instVars : [
-		'requests',
-		'url'
+		'posts',
+		'graphVersion'
 	],
 	#category : #MSAuthLib
 }
 
+{ #category : #examples }
+MsalGraphBatchRequest class >> exampleGraphV1 [
+	<gtExample>
+	
+	| result |
+	result := self forGraphV1.
+	self assert: result graphVersionEndpoint equals: 'https://graph.microsoft.com/v1.0' asUrl
+]
+
+{ #category : #examples }
+MsalGraphBatchRequest class >> forGraphV1 [
+
+	^ self forGraphVersion: 'v1.0'
+]
+
 { #category : #'instance creation' }
-MsalGraphBatchRequest class >> fromRootUrl: aUrl [
+MsalGraphBatchRequest class >> forGraphVersion: aString [
 
 	^ self new
-		url: aUrl / '$batch';
+		graphVersion: aString;
 		yourself
 ]
 
 { #category : #accessing }
-MsalGraphBatchRequest >> headerAccept [
+MsalGraphBatchRequest >> addPost [
 
-	^ ZnMimeType applicationJson
-	
-	"Reference: https://learn.microsoft.com/en-us/graph/api/onenote-list-pages?view=graph-rest-1.0#request-headers"
+	| post |
+	post := MsalGraphBatchPost fromRootUrl: self graphVersionEndpoint.
+	self posts add: post
 ]
 
 { #category : #accessing }
-MsalGraphBatchRequest >> json [
+MsalGraphBatchRequest >> addRequest: aRequest [
 
-	| requestDicts jsonDict |
-	requestDicts := Array streamContents: [ :str | 
-		self requests doWithIndex: [ :request :index | 
-			| requestDict |
-			requestDict := request asBatchDictionary
-				at: 'id' put: index asString;
-				yourself.
-			str << requestDict ] ].
-	jsonDict := Dictionary newFromPairs: { 'requests'. requestDicts }.
-	^ STONJSON toStringPretty: jsonDict.
+	| hasAvailablePost |
+	hasAvailablePost := self posts isNotEmpty and: [ self posts last requests size < 20 ].
+	hasAvailablePost ifFalse: [ self addPost ].
+	self posts last requests add: aRequest.
 ]
 
 { #category : #accessing }
-MsalGraphBatchRequest >> printOn: aStream [
+MsalGraphBatchRequest >> graphVersion [
 
-	aStream
-		nextPutAll: 'GET ';
-		print: self url;
-		nextPutAll: ' -> ';
-		print: self jsonReader.
+	^ graphVersion
 ]
 
 { #category : #accessing }
-MsalGraphBatchRequest >> requests [
+MsalGraphBatchRequest >> graphVersion: anObject [
 
-	^ requests
+	graphVersion := anObject
 ]
 
 { #category : #accessing }
-MsalGraphBatchRequest >> requests: anObject [
+MsalGraphBatchRequest >> graphVersionEndpoint [
 
-	requests := anObject
+	^ 'https://graph.microsoft.com' asUrl / self graphVersion
 ]
 
 { #category : #accessing }
+MsalGraphBatchRequest >> posts [
+
+	^ posts ifNil: [ posts := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+MsalGraphBatchRequest >> posts: anObject [
+
+	posts := anObject
+]
+
+{ #category : #accessing }
+MsalGraphBatchRequest >> requests: aCollection [
+	self posts removeAll.
+	aCollection do: [ :e | self addRequest: e ]
+]
+
+{ #category : #sending }
 MsalGraphBatchRequest >> sendTo: application [
 
-	[ 
-		application client
-			contents: self json;
-			contentType: ZnMimeType applicationJson.
-			
-		^ application
-			clientHTTP: #post 
-			jsonAt: self url 
-			do: [ :json | json ]
-	]
-		ensure: [ application client resetEntity ]
-]
-
-{ #category : #accessing }
-MsalGraphBatchRequest >> url [
-
-	^ url
-]
-
-{ #category : #accessing }
-MsalGraphBatchRequest >> url: anObject [
-
-	url := anObject
+	^ self posts flatCollect: [ :post | post sendTo: application ]
 ]

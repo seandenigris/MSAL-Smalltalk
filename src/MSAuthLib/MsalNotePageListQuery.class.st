@@ -1,10 +1,9 @@
 Class {
 	#name : #MsalNotePageListQuery,
-	#superclass : #Object,
+	#superclass : #MsalNoteCommand,
 	#instVars : [
 		'baseUrl',
-		'path',
-		'jsonReader'
+		'path'
 	],
 	#category : #MSAuthLib
 }
@@ -18,16 +17,6 @@ MsalNotePageListQuery class >> fromRootUrl: aUrl [
 ]
 
 { #category : #accessing }
-MsalNotePageListQuery >> asBatchDictionary [
-
-	| relativeUrl |
-	relativeUrl := self url asRelativeUrl removeFirstPathSegment.
-	^ {
-		'method' -> 'GET'.
-		'url' -> relativeUrl asString } asDictionary.
-]
-
-{ #category : #accessing }
 MsalNotePageListQuery >> baseUrl [
 
 	^ baseUrl
@@ -37,6 +26,19 @@ MsalNotePageListQuery >> baseUrl [
 MsalNotePageListQuery >> baseUrl: anObject [
 
 	baseUrl := anObject
+]
+
+{ #category : #accessing }
+MsalNotePageListQuery >> batchJsonReader [
+
+	^ [ :body :app | 
+		| pageDicts |
+		pageDicts := body at: 'value'.
+		pageDicts collect: [ :dict | 
+			| page |
+			page := MsalOneNotePage 
+				fromDictionary: dict 
+				forApplication: app ] ]
 ]
 
 { #category : #accessing }
@@ -76,18 +78,6 @@ MsalNotePageListQuery >> headerAccept [
 ]
 
 { #category : #accessing }
-MsalNotePageListQuery >> jsonReader [
-
-	^ jsonReader ifNil: [ #yourself ]
-]
-
-{ #category : #accessing }
-MsalNotePageListQuery >> jsonReader: anObject [
-
-	jsonReader := anObject
-]
-
-{ #category : #accessing }
 MsalNotePageListQuery >> path [
 
 	^ path ifNil: [ path := ZnUrl new ]
@@ -107,14 +97,6 @@ MsalNotePageListQuery >> printOn: aStream [
 		print: self url;
 		nextPutAll: ' -> ';
 		print: self jsonReader.
-]
-
-{ #category : #accessing }
-MsalNotePageListQuery >> sendTo: application [
-
-	^ application 
-		getJsonAt: self url
-		do: self jsonReader
 ]
 
 { #category : #accessing }

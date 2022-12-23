@@ -17,19 +17,6 @@ Class {
 	#category : #MSAuthLib
 }
 
-{ #category : #'instance creation' }
-MsalOneNotePage class >> fromDictionary: aDictionary forApplication: anMsalApplication [
-
-	| result |
-	result := super 
-		fromDictionary: aDictionary 
-		forApplication: anMsalApplication.
-		
-	^ result
-		updateStatus;
-		yourself
-]
-
 { #category : #accessing }
 MsalOneNotePage class >> handlers [
 
@@ -54,6 +41,16 @@ MsalOneNotePage class >> urlFromRoot: aUrl [
 	Implementation note: was sorting by modification timestamp, but apparently notes are considered 'modified' every time they are opened in the One Note client
 	
 	Query parameters reference: https://learn.microsoft.com/en-us/graph/query-parameters"
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> contentQuery [
+
+	| result |
+	result := MsgNotePageContentQuery fromUrl: self htmlUrl.
+	^ result
+		onSuccess: [ :contentString | htmlString := contentString ];
+		yourself
 ]
 
 { #category : #accessing }
