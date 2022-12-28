@@ -67,6 +67,21 @@ MsalGraphBatchRequest >> graphVersionEndpoint [
 ]
 
 { #category : #accessing }
+MsalGraphBatchRequest >> gtRequestsFor: aView [
+	<gtView>
+	^ aView columnedList
+		title: 'Requests';
+		priority: 50;
+		items: [ self posts flatCollect: #requests ];
+		column: 'Method' 
+			text: [ :eachItem | 
+				'GET' ]
+			width: 50;
+		column: 'URL' 
+			text: [ :eachItem | eachItem url ].
+]
+
+{ #category : #accessing }
 MsalGraphBatchRequest >> posts [
 
 	^ posts ifNil: [ posts := OrderedCollection new ]

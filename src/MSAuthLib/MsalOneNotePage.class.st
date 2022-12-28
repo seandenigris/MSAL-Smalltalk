@@ -46,10 +46,18 @@ MsalOneNotePage class >> urlFromRoot: aUrl [
 { #category : #accessing }
 MsalOneNotePage >> contentQuery [
 
-	| result |
-	result := MsgNotePageContentQuery fromUrl: self htmlUrl.
-	^ result
+	^ MsgNotePageContentQuery fromUrl: self htmlUrl
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> contentUpdateQuery [
+
+	^ self contentQuery 
 		onSuccess: [ :contentString | htmlString := contentString ];
+		ifFail: [ :err |
+			err response isNotFound 
+				ifTrue: [ self status: MsalNotePageContentsMissingStatus new ]
+				ifFalse: [ err pass ] ]
 		yourself
 ]
 

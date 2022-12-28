@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'jsonReader',
-		'successBlock'
+		'successBlock',
+		'ifFailBlock'
 	],
 	#category : #MSAuthLib
 }
@@ -22,6 +23,18 @@ MsalNoteCommand >> asBatchDictionary [
 MsalNoteCommand >> batchJsonReader [
 
 	^ self jsonReader
+]
+
+{ #category : #accessing }
+MsalNoteCommand >> ifFail: aBlock [
+
+	ifFailBlock := aBlock
+]
+
+{ #category : #accessing }
+MsalNoteCommand >> ifFailBlock [
+	
+	^ ifFailBlock ifNil: [ [ :exception | exception pass ] ]
 ]
 
 { #category : #accessing }

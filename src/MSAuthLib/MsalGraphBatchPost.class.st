@@ -17,27 +17,42 @@ MsalGraphBatchPost class >> fromRootUrl: aUrl [
 ]
 
 { #category : #accessing }
+MsalGraphBatchPost >> handleResponse: jsonDictionary to: request fromApplication: application [
+	
+	| znResponse |
+	znResponse := MsgBatchStepResponse 
+		json: jsonDictionary
+		inResponseTo: request
+		of: application.
+	
+	[ 
+		"In order for the request to not have to worry about whether it is being handled by a batch step or individually, we simulate ZnClient>>#handleResponse and its exception handling wrapper ZnClient>>#executeWithTimeout. NB. one difference is that when the application handles a request individually, it tries to log in if it fails with a 403 error; we are not doing that here and its unclear whether that could happen (i.e. the batch succeeds but an individual step -> 403)"
+		| error |
+		znResponse isSuccess ifFalse: [
+			error := ZnHttpUnsuccessful response: znResponse.
+			error signal ].
+		self flag: 'do we need:
+			`self contentReader 
+				ifNil: [ response contents ]
+				ifNotNil: [ request contentReader value: response entity ]`?'.
+		^ znResponse handle
+	]
+		on: Error
+		do: [ :err | request ifFailBlock value: err ].
+]
+
+{ #category : #accessing }
 MsalGraphBatchPost >> handleResponses: responses fromApplication: application [
 	^ self requests
 		collectWithIndex: [ :req :idx | 
 			responses
 				detect: [ :response | (response at: 'id') asNumber = idx ]
 				ifFound: [ :response | 
-					(response at: 'status') = 200 ifFalse: [ self error: 'request unsuccessful' ].
 					self
-						handleSuccessfulResponse: response
+						handleResponse: response
 						to: req
 						fromApplication: application ]
 				ifNone: [ self error: 'no response for request! Should never get here' ] ]
-]
-
-{ #category : #accessing }
-MsalGraphBatchPost >> handleSuccessfulResponse: response to: request fromApplication: application [ 
-
-	| result |
-	result := request batchJsonReader cull: (response at: 'body') cull: application.
-	request successBlock value: result.
-	^ result
 ]
 
 { #category : #accessing }

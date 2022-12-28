@@ -132,7 +132,7 @@ MsalApplication >> clientHTTP: aSelector url: aUrl contentReader: aBlock [
 	]
 		on: ZnHttpUnsuccessful
 		do: [ :err |
-			err response code = 401 
+			err response isAuthenticationRequired
 				ifTrue: [ 
 					self logIn.
 					self client perform: aSelector ]
