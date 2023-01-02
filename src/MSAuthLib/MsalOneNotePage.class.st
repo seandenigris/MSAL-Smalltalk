@@ -295,9 +295,21 @@ MsalOneNotePage >> preview [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> previewQuery [
+
+	^ MsgNotePagePreviewQuery fromUrl: self previewUrl
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> previewText [
 
 	^ self preview at: 'previewText'
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> previewUrl [
+
+	^ self url / 'preview'
 ]
 
 { #category : #accessing }
@@ -376,5 +388,5 @@ MsalOneNotePage >> updateStatus [
 { #category : #accessing }
 MsalOneNotePage >> url [
 
-	^ MsalOneNote url / 'pages' / self id
+	^ (self rawData at: 'self') asUrl
 ]
