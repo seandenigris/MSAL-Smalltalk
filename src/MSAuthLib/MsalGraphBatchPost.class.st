@@ -109,6 +109,21 @@ MsalGraphBatchPost >> requests: anObject [
 ]
 
 { #category : #accessing }
+MsalGraphBatchPost >> requestsGtViewFor: aView [
+	<gtView>
+	^ aView columnedList
+		title: 'Requests';
+		priority: 50;
+		items: [ self requests ];
+		column: 'Method' 
+			text: [ :eachItem | 
+				'GET' ]
+			width: 50;
+		column: 'URL' 
+			text: [ :eachItem | eachItem url ].
+]
+
+{ #category : #accessing }
 MsalGraphBatchPost >> sendTo: application [
 	[ 
 		application client
