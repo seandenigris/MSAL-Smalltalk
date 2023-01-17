@@ -45,7 +45,8 @@ MsalOneNote >> getPages [
 
 	| pageQueries batch result |
 	result := OrderedCollection new.
-	pageQueries := self getPagesUrls.
+	
+	pageQueries := self getPagesQueries.
 	pageQueries do: [ :query | 
 		query onSuccess: [ :col |
 			result addAll: col ] ].
@@ -61,7 +62,7 @@ MsalOneNote >> getPages [
 ]
 
 { #category : #accessing }
-MsalOneNote >> getPagesUrls [
+MsalOneNote >> getPagesQueries [
 
 	| query totalPages handledPages result pageSize |
 	query := MsalNotePageListQuery fromRootUrl: self class url.
