@@ -192,6 +192,13 @@ MsalOneNotePage >> id [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> initialize [
+	super initialize.
+	
+	self status: MsalNotePageActiveStatus new.
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> isContentMissing [
 
 	^ self status isKindOf: MsalNotePageContentsMissingStatus
