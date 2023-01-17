@@ -361,14 +361,19 @@ MsalOneNotePage >> title [
 	self htmlString ifNil: [ ^ title := apiTitle ].
 	
 	htmlTitleElement := self htmlHeadElements detect: [ :element | element name = 'title' ].
-	htmlTitle := htmlTitleElement contentString trimRight.
+	htmlTitle := htmlTitleElement contentString trimRight withBlanksCondensed. "Found cases where the htmlTitle was a superstring of the apiTitle except that there was an extra space within or at the end of the htmlTitle"
 	objectReplacementCharacterValue := 65532. "per https://www.charset.org/utf-8/66"
 	
 	"No added value from html title"
-	wasTitleHandwritten := htmlTitle size = 1 and: [ htmlTitle first asciiValue = objectReplacementCharacterValue ].
+	
+	"Handwritten titles - found examples of one to three object replacement characters"
+	wasTitleHandwritten := htmlTitle allSatisfy: [ :e | e asciiValue = objectReplacementCharacterValue ].
 	(wasTitleHandwritten or: [ htmlTitle isEmpty or: [ htmlTitle = apiTitle ] ]) ifTrue: [ ^ title := apiTitle ].
 	
-	(htmlTitle includesSubstring: apiTitle) ifFalse: [ self error: 'violated assumption that html title is addition to api title' ].
+	"It does seem like an htmlTitle is always preferred over the apiTitle when both are available. However, the data seems too weird to have an effective check here so we disable it. For example, in one case, the titles were as follows:
+		- apiTitle: 'Curtain rods - where are'
+		- htmlTitle: 'Curtain rods - where is hardware'
+	(htmlTitle includesSubstring: apiTitle) ifFalse: [ self error: 'violated assumption that html title is addition to api title' ]."
 	
 	^ title := htmlTitle
 ]
