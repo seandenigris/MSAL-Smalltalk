@@ -125,11 +125,8 @@ MsalOneNotePage >> handlersViewOn: aView [
 		title: 'Handlers';
 		priority: 25;
 		items: [ self handlers asOrderedCollection ];
-		itemContextMenuStencil: [ :element :item |
-			BrGlamorousSimpleContextMenuContent new
-				items: {
-					'Execute' -> [ item execute ] };
-				yourself ];
+		contextItemLabel: 'Execute' 
+			action: [ :element :item | item execute ];
 		actionUpdateButton
 ]
 
