@@ -52,9 +52,17 @@ MsalOneNotePageElementVisitor >> visitCreationTimetamp: aDateAndTime [
 ]
 
 { #category : #accessing }
-MsalOneNotePageElementVisitor >> visitImageBytes: aByteArray [
-		
-	self element addChild: (Form fromBinaryStream: aByteArray readStream) asElement asScalableElement.
+MsalOneNotePageElementVisitor >> visitImage: anRlResource [
+	
+	| imageElement |
+	imageElement := (Form fromBinaryStream: anRlResource file binaryReadStream) asElement
+		when: BlDoubleClickEvent 
+			do: [ :anEvent | 
+				anEvent target phlow spawnObject: anRlResource.
+				anEvent consumed: true  ];
+		yourself.
+	
+	self element addChild: imageElement asScalableElement.
 ]
 
 { #category : #accessing }

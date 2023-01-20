@@ -9,7 +9,11 @@ BaselineOfMSAL >> baseline: spec [
 	<baseline>
 	
 	spec for: #'common' do: [
-		spec package: 'MSAuthLib' ]
+		spec
+			baseline: 'ResourcesLive' with: [
+				spec repository: 'github://seandenigris/Resources-Live' ].
+				
+		spec package: 'MSAuthLib' with: [ spec requires: #(ResourcesLive) ] ]
 ]
 
 { #category : #accessing }

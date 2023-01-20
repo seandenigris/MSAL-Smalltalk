@@ -61,18 +61,38 @@ MsalOneNotePageVisitor >> visitCreationTimetamp: aDateAndTime [
 ]
 
 { #category : #accessing }
-MsalOneNotePageVisitor >> visitImageBytes: anObject [ 
+MsalOneNotePageVisitor >> visitImage: resource [ 
 ]
 
 { #category : #accessing }
 MsalOneNotePageVisitor >> visitImageElement: anXMLElement [
 	
-	| url |
+	| url imageType imageID imageFile class resource |
 	url := (anXMLElement attributeAt: 'data-fullres-src') asUrl.
+	imageType := ZnMimeType fromString: (anXMLElement attributeAt: 'data-fullres-src-type').
+	imageID := url copy pathSegments allButLast last.
+	
+	"RlPicture fromMimeType: withBytes:."
+	class := RlPicture allSubclasses
+		detect: [ :e | e mimeTypes includes: imageType ]
+		ifNone: [ RlPicture ].
+		
+	imageFile := FileSystem memory / imageID, class fileExtensions first.
 	
 	self application
 		get: url
-		contentReader: [ :r | self visitImageBytes: r contents ]
+		contentReader: [ :r | 
+			imageFile binaryWriteStreamDo: [ :str | 
+				str nextPutAll: r contents ] ].
+				
+	resource := class new
+		file: imageFile;
+		source: url;
+		yourself.
+	
+	self application
+		get: url
+		contentReader: [ :r | self visitImage: resource ]
 		
 	"`anXMLElement attributeAt: 'data-fullres-src-type'` returns a media type e.g. 'image/png'"
 ]
