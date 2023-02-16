@@ -34,7 +34,9 @@ MsalOneNotePageVisitor >> note: aPage [
 MsalOneNotePageVisitor >> visit: aPage [
 
 	self visitTitle: aPage title.
+	self visitID: aPage id.
 	self visitCreationTimetamp: aPage creationTimestamp.
+	self visitModificationTimestampUTC: aPage modificationTimestampUTC.
 	self visitBodyOf: aPage
 ]
 
@@ -58,6 +60,10 @@ MsalOneNotePageVisitor >> visitBodyOf: aPage [
 
 { #category : #accessing }
 MsalOneNotePageVisitor >> visitCreationTimetamp: aDateAndTime [ 
+]
+
+{ #category : #accessing }
+MsalOneNotePageVisitor >> visitID: aString [
 ]
 
 { #category : #accessing }
@@ -95,6 +101,10 @@ MsalOneNotePageVisitor >> visitImageElement: anXMLElement [
 		contentReader: [ :r | self visitImage: resource ]
 		
 	"`anXMLElement attributeAt: 'data-fullres-src-type'` returns a media type e.g. 'image/png'"
+]
+
+{ #category : #accessing }
+MsalOneNotePageVisitor >> visitModificationTimestampUTC: aDateAndTime [
 ]
 
 { #category : #accessing }
