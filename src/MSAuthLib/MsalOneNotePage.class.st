@@ -81,7 +81,7 @@ MsalOneNotePage >> creationTimestamp [
 { #category : #accessing }
 MsalOneNotePage >> creationTimestampUTC [
 
-	^ self rawData at: 'createdDateTime'
+	^ (self rawData at: 'createdDateTime') asDateAndTime
 ]
 
 { #category : #actions }
@@ -251,7 +251,7 @@ MsalOneNotePage >> markdownViewOn: aView [
 { #category : #accessing }
 MsalOneNotePage >> modificationTimestampUTC [
 
-	^ self rawData at: 'lastModifiedDateTime'
+	^ (self rawData at: 'lastModifiedDateTime') asDateAndTime
 ]
 
 { #category : #accessing }
