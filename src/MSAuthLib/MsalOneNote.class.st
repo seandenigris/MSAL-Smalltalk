@@ -106,6 +106,13 @@ MsalOneNote >> notebooksViewOn: aView [
 ]
 
 { #category : #accessing }
+MsalOneNote >> pageWithID: aString [
+
+	^ self pages detect: [ :page |
+		page id = aString ]
+]
+
+{ #category : #accessing }
 MsalOneNote >> pages [
 
 	^ pages select: [ :page | page status isActive ]
