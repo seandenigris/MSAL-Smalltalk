@@ -4,10 +4,12 @@ Class {
 	#instVars : [
 		'accessToken',
 		'pythonInstance',
-		'id',
 		'authorityUrl',
 		'client',
 		'oneNote'
+	],
+	#classInstVars : [
+		'id'
 	],
 	#category : #MSAuthLib
 }
@@ -16,6 +18,17 @@ Class {
 MsalApplication class >> fuelIgnoredInstanceVariableNames [
 
 	^ #('accessToken' 'pythonInstance' 'client')
+]
+
+{ #category : #accessing }
+MsalApplication class >> id [
+	^ id
+]
+
+{ #category : #accessing }
+MsalApplication class >> id: anObject [
+
+	id := anObject
 ]
 
 { #category : #accessing }
@@ -212,13 +225,7 @@ MsalApplication >> head: aUrl responseDo: aBlock [
 { #category : #accessing }
 MsalApplication >> id [
 
-	^ id
-]
-
-{ #category : #accessing }
-MsalApplication >> id: anObject [
-
-	id := anObject
+	^ self class id
 ]
 
 { #category : #accessing }
