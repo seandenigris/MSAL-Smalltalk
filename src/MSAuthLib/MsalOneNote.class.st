@@ -41,6 +41,13 @@ MsalOneNote >> application: anObject [
 ]
 
 { #category : #accessing }
+MsalOneNote >> forcePullPages [
+
+	pages := nil.
+	^ self syncPages
+]
+
+{ #category : #accessing }
 MsalOneNote >> getPages [
 
 	| pageQueries batch result |
