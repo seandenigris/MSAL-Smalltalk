@@ -63,7 +63,7 @@ MsalOneNote >> getPages [
 	
 	batch := MsalGraphBatchRequest forGraphV1.				
 	result do: [ :page | batch addRequest: page contentUpdateQuery ].
-	batch sendTo: MsalDynabookApp uniqueInstance.
+	batch sendTo: self application.
 	
 	^ result
 ]
