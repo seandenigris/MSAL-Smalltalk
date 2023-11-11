@@ -243,6 +243,8 @@ MsalApplication >> logIn [
 
 { #category : #accessing }
 MsalApplication >> logOut [
+
+	accessToken ifNil: [ ^ self ].
 	
 	self get_accounts ifNotEmpty: [ 
 		self 
