@@ -48,6 +48,7 @@ MsalOneNoteSection >> pagesViewOn: aView [
 		title: 'Pages';
 		priority: 50;
 		items: [ self pages asAsyncStream ];
+		itemText: #title;
 		actionUpdateButton
 ]
 

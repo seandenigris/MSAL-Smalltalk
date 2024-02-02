@@ -109,6 +109,7 @@ MsalOneNote >> notebooksViewOn: aView [
 		title: 'Notebooks';
 		priority: 50;
 		items: [ self notebooks asAsyncStream ];
+		itemText: #name;
 		actionUpdateButton
 ]
 

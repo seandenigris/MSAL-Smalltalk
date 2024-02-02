@@ -51,5 +51,6 @@ MsalOneNoteBook >> sectionsViewOn: aView [
 		title: 'Sections';
 		priority: 12;
 		items: [ self sections asAsyncStream ];
+		itemText: #name;
 		actionUpdateButton
 ]
