@@ -285,6 +285,8 @@ MsalOneNotePage >> presentOnWebDescription [
 	<magritteActionDescription>
 	^ MAActionDescription new
 		action: #presentOnWeb;
+		gtIcon: BrGlamorousVectorIcons link;
+		isLabelVisible: false;
 		yourself
 ]
 
