@@ -249,6 +249,23 @@ MsalOneNotePage >> markdownViewOn: aView [
 ]
 
 { #category : #accessing }
+MsalOneNotePage >> media [
+
+	^ MsalOneNotePageMediaVisitor visit: self
+]
+
+{ #category : #accessing }
+MsalOneNotePage >> mediaViewOn: aView [
+	<gtView>
+	
+	^ aView list
+		title: 'Media';
+		priority: 20;
+		items: [ self media ];
+		actionUpdateButton
+]
+
+{ #category : #accessing }
 MsalOneNotePage >> modificationTimestampUTC [
 
 	^ (self rawData at: 'lastModifiedDateTime') asDateAndTime
