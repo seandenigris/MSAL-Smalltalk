@@ -52,13 +52,13 @@ MsalOneNotePageElementVisitor >> visitCreationTimetamp: aDateAndTime [
 ]
 
 { #category : #accessing }
-MsalOneNotePageElementVisitor >> visitImage: anRlResource [
+MsalOneNotePageElementVisitor >> visitImage: aOneNoteImage [
 	
 	| imageElement |
-	imageElement := (Form fromBinaryStream: anRlResource file binaryReadStream) asElement
+	imageElement := aOneNoteImage asElement
 		when: BlDoubleClickEvent 
 			do: [ :anEvent | 
-				anEvent target phlow spawnObject: anRlResource.
+				anEvent target phlow spawnObject: aOneNoteImage "asRlResource".
 				anEvent consumed: true  ];
 		yourself.
 	
